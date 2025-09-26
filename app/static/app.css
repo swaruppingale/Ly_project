@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+:root {
+  --primary: #007bff;
+  --secondary: #28a745;
+  --accent: #17a2b8;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --info: #17a2b8;
+  --light: #f8f9fa;
+  --dark: #343a40;
+  --text: #212529;
+  --muted: #6c757d;
+  --surface: #ffffff;
+  --surface-2: #f8f9fa;
+  --border: #dee2e6;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: var(--text);
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Custom styles for mental health theme */
+/* .navbar-brand {
+  font-weight: 700;
+} */
+
+.navbar {
+  background: linear-gradient(90deg, #b2cfe8 0%, #4a6567 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+              
+}
+
+.navbar-nav{
+display: flex;
+gap: 20px;
+}
+
+
+.nav-link.active {
+  background: rgba(255,255,255,0.3);
+}
+
+
+.sidebar .nav-link.active {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border-radius: 0.5rem;
+}
+
+
+.card {
+  background: linear-gradient(135deg, #fef9f3, #e0f0f5);
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+
+
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem var(--shadow);
+}
+
+/* .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+} */
+
+.btn-primary {
+  background: linear-gradient(90deg, #b2cfe8 0%, #315355 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+
+.btn-success {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.btn-success:hover {
+  background-color: #1e7e34;
+  border-color: #1c7430;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* Page specific styles */
+.welcome-section {
+  background: linear-gradient(135deg, #a0e0df 0%, #2c4d53 100%);
+  color: white;
+  text-align: center;
+  padding: 3rem 2rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+
+.welcome-section:hover {
+  transform: translateY(-5px);
+}
+
+
+
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+  transition: transform 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+}
+
+.icon-mood { background-color: #ff6b6b; }
+.icon-journal { background-color: #4ecdc4; }
+.icon-resources { background-color: #45b7d1; }
+.icon-analytics { background-color: #96ceb4; }
+.icon-profile { background-color: #feca57; }
+
+.stats-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Sidebar styles */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.sidebar .nav-link {
+  color: var(--text);
+  transition: background-color 0.2s;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: var(--primary);
+}
+
+/* .sidebar .nav-link.active {
+  background-color: var(--primary);
+  color: white;
+} */
+
+/* Enhanced card hover */
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.75rem 1.5rem var(--shadow);
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .welcome-section {
+    padding: 2rem 1rem;
+  }
+
+  .feature-card {
+    margin-bottom: 1rem;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+  }
+}
+

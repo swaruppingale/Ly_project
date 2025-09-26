@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mental Health Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/dashboard">
+                <i class="fas fa-brain"></i>
+                Mental Health Platform
+            </a>
+            <div class="navbar-nav ms-auto">
+                
+                <a href="/mood" class="nav-link text-white">Mood</a>
+                <a href="/journal" class="nav-link text-white">Journal</a>
+                <a href="/resources" class="nav-link text-white">Resources</a>
+                <a href="/analytics" class="nav-link text-white">Analytics</a>
+                <a href="/profile" class="nav-link text-white">Profile</a>
+                <a href="#" onclick="logout()" class="nav-link text-white">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="row">
+            <!-- Main content -->
+            <div class="col-lg">
+        <div class="welcome-section">
+            <h1 class="display-4">Welcome, <span id="userName">User</span>!</h1>
+            <p class="lead" id="userEmail"></p>
+            <p class="lead">Track your mood, write in your journal, and access mental health resources</p>
+        </div>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100" onclick="navigateTo('/mood')">
+                    <div class="card-body text-center">
+                        <div class="feature-icon icon-mood mb-3">
+                            <i class="fas fa-smile"></i>
+                        </div>
+                        <h5 class="card-title">Mood Tracking</h5>
+                        <p class="card-text">Log your daily mood and emotions to track your mental health journey</p>
+                        <a href="/mood" class="btn btn-primary">Track Mood</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100" onclick="navigateTo('/journal')">
+                    <div class="card-body text-center">
+                        <div class="feature-icon icon-journal mb-3">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h5 class="card-title">Journal</h5>
+                        <p class="card-text">Write your thoughts and feelings in a private, secure journal</p>
+                        <a href="/journal" class="btn btn-primary">Write Entry</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100" onclick="navigateTo('/resources')">
+                    <div class="card-body text-center">
+                        <div class="feature-icon icon-resources mb-3">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h5 class="card-title">Resources</h5>
+                        <p class="card-text">Access helpful mental health resources and coping strategies</p>
+                        <a href="/resources" class="btn btn-primary">Browse Resources</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100" onclick="navigateTo('/analytics')">
+                    <div class="card-body text-center">
+                        <div class="feature-icon icon-analytics mb-3">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5 class="card-title">Analytics</h5>
+                        <p class="card-text">View your mood trends and mental health progress over time</p>
+                        <a href="/analytics" class="btn btn-primary">View Analytics</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100" onclick="navigateTo('/profile')">
+                    <div class="card-body text-center">
+                        <div class="feature-icon icon-profile mb-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h5 class="card-title">Profile</h5>
+                        <p class="card-text">Manage your account settings and personal information</p>
+                        <a href="/profile" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Your Statistics</h2>
+                <div class="row g-3" id="statsGrid">
+                    <div class="col-md-3">
+                        <div class="stats-card text-center p-3">
+                            <div class="loading-spinner d-none" id="moodCountLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="moodCount">-</div>
+                            <div class="stat-label">Mood Entries</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center p-3">
+                            <div class="loading-spinner d-none" id="journalCountLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="journalCount">-</div>
+                            <div class="stat-label">Journal Entries</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center p-3">
+                            <div class="loading-spinner d-none" id="avgMoodLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="avgMood">-</div>
+                            <div class="stat-label">Average Mood</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center p-3">
+                            <div class="loading-spinner d-none" id="streakDaysLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="streakDays">-</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <p>&copy; 2025 Mental Health Platform.</p>
+    </footer>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        
+        // Check if user is logged in
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.username || 'User';
+                    document.getElementById('userEmail').textContent = user.email || '';
+                } else {
+                    document.getElementById('userName').textContent = 'User';
+                    document.getElementById('userEmail').textContent = '';
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                document.getElementById('userName').textContent = 'User';
+                document.getElementById('userEmail').textContent = '';
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            // Mood analytics
+            document.getElementById('moodCountLoading').classList.remove('d-none');
+            document.getElementById('avgMoodLoading').classList.remove('d-none');
+            document.getElementById('streakDaysLoading').classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/mood/analytics', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                document.getElementById('moodCountLoading').classList.add('d-none');
+                document.getElementById('avgMoodLoading').classList.add('d-none');
+                document.getElementById('streakDaysLoading').classList.add('d-none');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('moodCount').textContent = data.total_entries || 0;
+                    document.getElementById('avgMood').textContent = data.average_mood ? data.average_mood.toFixed(1) : '-';
+                    document.getElementById('streakDays').textContent = data.current_streak || 0;
+                } else {
+                    document.getElementById('moodCount').textContent = 'Error';
+                    document.getElementById('avgMood').textContent = 'Error';
+                    document.getElementById('streakDays').textContent = 'Error';
+                    console.error('Failed to load mood analytics:', response.status);
+                }
+            } catch (error) {
+                document.getElementById('moodCountLoading').classList.add('d-none');
+                document.getElementById('avgMoodLoading').classList.add('d-none');
+                document.getElementById('streakDaysLoading').classList.add('d-none');
+                document.getElementById('moodCount').textContent = 'Error';
+                document.getElementById('avgMood').textContent = 'Error';
+                document.getElementById('streakDays').textContent = 'Error';
+                console.error('Error loading mood stats:', error);
+            }
+
+            // Journal analytics
+            document.getElementById('journalCountLoading').classList.remove('d-none');
+
+            try {
+                const response = await fetch('/api/journal/analytics', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                document.getElementById('journalCountLoading').classList.add('d-none');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('journalCount').textContent = data.total_entries || 0;
+                } else {
+                    document.getElementById('journalCount').textContent = 'Error';
+                    console.error('Failed to load journal analytics:', response.status);
+                }
+            } catch (error) {
+                document.getElementById('journalCountLoading').classList.add('d-none');
+                document.getElementById('journalCount').textContent = 'Error';
+                console.error('Error loading journal count:', error);
+            }
+        }
+        
+        // Navigation function
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+
+        // Initialize
+        loadUserData();
+        loadStats();
+    </script>
+</body>
+</html> 

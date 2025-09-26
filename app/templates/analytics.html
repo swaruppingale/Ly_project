@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Mental Health Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar{
+         background: linear-gradient(90deg, #b2cfe8 0%, #4a6567 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+     
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            background: linear-gradient(135deg, #fef9f3, #e0f0f5);
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.15s ease-in-out;
+        }
+        
+        .page-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            background: linear-gradient(135deg, #fef9f3, #e0f0f5);
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.15s ease-in-out;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 15px;
+        }
+        
+        .stat-icon.entries { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.average { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-icon.streak { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-icon.trend { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .stat-icon.journal { background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%); }
+        .stat-icon.writing { background: linear-gradient(135deg, #ff6b6b 0%, #ff4f4f 100%); }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .chart-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, #fef9f3, #e0f0f5);
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.15s ease-in-out;
+        }
+        
+        .chart-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .chart-container canvas {
+            max-height: 100% !important;
+        }
+        
+        .insights-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .insights-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .insights-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .insight-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #6B73FF;
+        }
+        
+        .insight-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .insight-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6B73FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+        
+        .mood-distribution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .mood-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .mood-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .mood-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .mood-count {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .mood-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/dashboard">
+                <i class="fas fa-brain"></i>
+                Mental Health Platform
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a href="/dashboard" class="nav-link text-white">Dashboard</a>
+                <a href="/mood" class="nav-link text-white">Mood</a>
+                <a href="/journal" class="nav-link text-white">Journal</a>
+                <a href="/resources" class="nav-link text-white">Resources</a>
+                <a href="/analytics" class="nav-link active text-white">Analytics</a>
+                <a href="/profile" class="nav-link text-white">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Analytics & Insights</h1>
+            <p>View your mood trends and mental health progress over time</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon entries">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-number" id="totalMoodEntries">-</div>
+                <div class="stat-label">Mood Entries</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon average">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="stat-number" id="averageMood">-</div>
+                <div class="stat-label">Average Mood</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon streak">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="stat-number" id="currentStreak">-</div>
+                <div class="stat-label">Mood Streak</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon trend">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="stat-number" id="trend">-</div>
+                <div class="stat-label">Trend</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon journal">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-number" id="totalJournalEntries">-</div>
+                <div class="stat-label">Journal Entries</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon writing">
+                    <i class="fas fa-pen"></i>
+                </div>
+                <div class="stat-number" id="writingStreak">-</div>
+                <div class="stat-label">Writing Streak</div>
+            </div>
+        </div>
+        
+        <div class="chart-section">
+            <h2><i class="fas fa-chart-area"></i> Mood Over Time</h2>
+            <div class="chart-container">
+                <canvas id="moodChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-section">
+            <h2><i class="fas fa-pie-chart"></i> Mood Distribution</h2>
+            <div class="mood-distribution" id="moodDistribution">
+                <div class="no-data">
+                    <i class="fas fa-spinner fa-spin"></i> Loading mood distribution...
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights-section">
+            <h2><i class="fas fa-lightbulb"></i> Insights & Recommendations</h2>
+            <div class="insights-grid" id="insightsGrid">
+                <div class="insight-card">
+                    <h4><i class="fas fa-info-circle"></i> Getting Started</h4>
+                    <p>Start tracking your mood regularly to see meaningful patterns and insights. The more data you provide, the better we can help you understand your mental health journey.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let moodChart = null;
+        
+        // Check if user is logged in
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+        
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                // Load mood analytics
+                const moodResponse = await fetch('/api/mood/analytics', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                
+                if (moodResponse.ok) {
+                    const moodData = await moodResponse.json();
+                    console.log('Mood analytics data:', moodData); // Debug log
+                    updateMoodStats(moodData);
+                    createMoodChart(moodData);
+                    updateMoodDistribution(moodData);
+                } else {
+                    console.error('Failed to load mood analytics:', moodResponse.status);
+                }
+                
+                // Load journal analytics
+                const journalResponse = await fetch('/api/journal/analytics', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                
+                if (journalResponse.ok) {
+                    const journalData = await journalResponse.json();
+                    console.log('Journal analytics data:', journalData); // Debug log
+                    updateJournalStats(journalData);
+                } else {
+                    console.error('Failed to load journal analytics:', journalResponse.status);
+                }
+                
+                // Generate insights based on both datasets
+                generateInsights();
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                document.querySelector('.chart-container').innerHTML = '<div class="no-data">Error loading analytics data</div>';
+            }
+        }
+        
+        // Update mood statistics
+        function updateMoodStats(data) {
+            document.getElementById('totalMoodEntries').textContent = data.total_entries || 0;
+            document.getElementById('averageMood').textContent = data.average_mood ? data.average_mood.toFixed(1) : '-';
+            document.getElementById('currentStreak').textContent = data.current_streak || 0;
+            
+            // Calculate trend
+            if (data.recent_trend) {
+                const trend = data.recent_trend > 0 ? '↗' : data.recent_trend < 0 ? '↘' : '→';
+                document.getElementById('trend').textContent = trend;
+            } else {
+                document.getElementById('trend').textContent = '-';
+            }
+        }
+        
+        // Update journal statistics
+        function updateJournalStats(data) {
+            document.getElementById('totalJournalEntries').textContent = data.total_entries || 0;
+            document.getElementById('writingStreak').textContent = data.writing_streak || 0;
+        }
+        
+        // Create mood chart
+        function createMoodChart(data) {
+            // Check if Chart.js is available
+            if (typeof Chart === 'undefined') {
+                document.querySelector('.chart-container').innerHTML = '<div class="no-data">Chart.js not loaded. Please refresh the page.</div>';
+                return;
+            }
+            
+            const ctx = document.getElementById('moodChart');
+            if (!ctx) {
+                console.error('Chart canvas element not found');
+                return;
+            }
+            
+            const context = ctx.getContext('2d');
+            if (!context) {
+                console.error('Could not get 2D context for chart');
+                return;
+            }
+            
+            if (moodChart) {
+                moodChart.destroy();
+            }
+            
+            if (!data.mood_data || data.mood_data.length === 0) {
+                document.querySelector('.chart-container').innerHTML = '<div class="no-data">No mood data available yet. Start tracking your mood to see your progress!</div>';
+                return;
+            }
+            
+            console.log('Chart data:', data.mood_data); // Debug log
+            
+            try {
+                // Create simple chart with entry numbers as labels
+                const chartData = data.mood_data
+                    .map((entry, index) => ({
+                        x: index + 1,
+                        y: entry.mood_score,
+                        date: entry.date
+                    }))
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                const labels = chartData.map((entry, index) => {
+                    const date = new Date(entry.date);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                
+                moodChart = new Chart(context, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Mood Score',
+                            data: chartData.map(d => d.y),
+                            borderColor: '#6B73FF',
+                            backgroundColor: 'rgba(107, 115, 255, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#6B73FF',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    display: true,
+                                    color: 'rgba(0,0,0,0.1)'
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                min: 1,
+                                max: 10,
+                                ticks: {
+                                    stepSize: 1
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Mood Score (1-10)',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    display: true,
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: '#6B73FF',
+                                borderWidth: 1,
+                                callbacks: {
+                                    title: function(context) {
+                                        return context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return `Mood: ${context.parsed.y}/10`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('Chart created successfully');
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                document.querySelector('.chart-container').innerHTML = '<div class="no-data">Error creating chart: ' + error.message + '</div>';
+            }
+        }
+        
+        // Update mood distribution
+        function updateMoodDistribution(data) {
+            const container = document.getElementById('moodDistribution');
+            
+            if (!data.mood_distribution || Object.keys(data.mood_distribution).length === 0) {
+                container.innerHTML = '<div class="no-data">No mood distribution data available.</div>';
+                return;
+            }
+            
+            console.log('Mood distribution:', data.mood_distribution); // Debug log
+            
+            const moodMappings = {
+                'Happy': '😊',
+                'Sad': '😢',
+                'Anxious': '😰',
+                'Calm': '😌',
+                'Angry': '😠',
+                'Excited': '🤩',
+                'Tired': '😴',
+                'Neutral': '😐',
+                'Very Sad': '😭',
+                'Down': '😔',
+                'Not Great': '😕',
+                'Okay': '🙂',
+                'Very Happy': '😄',
+                'Excellent': '🤩'
+            };
+            
+            // Sort by count (highest first)
+            const sortedMoods = Object.entries(data.mood_distribution)
+                .sort(([,a], [,b]) => b - a);
+            
+            container.innerHTML = sortedMoods.map(([mood, count]) => `
+                <div class="mood-item">
+                    <div class="mood-emoji">${moodMappings[mood] || '😐'}</div>
+                    <div class="mood-count">${count}</div>
+                    <div class="mood-label">${mood}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Generate insights
+        function generateInsights() {
+            const insightsGrid = document.getElementById('insightsGrid');
+            const insights = [];
+            
+            // Add basic insight
+            insights.push({
+                title: 'Getting Started',
+                icon: 'fas fa-info-circle',
+                content: 'Start tracking your mood regularly to see meaningful patterns and insights. The more data you provide, the better we can help you understand your mental health journey.'
+            });
+            
+            // Add insights based on data
+            if (document.getElementById('totalMoodEntries').textContent > 0) {
+                if (document.getElementById('averageMood').textContent >= 7) {
+                    insights.push({
+                        title: 'Great Progress!',
+                        icon: 'fas fa-star',
+                        content: `Your average mood of ${document.getElementById('averageMood').textContent}/10 shows you're doing well. Keep up the positive momentum!`
+                    });
+                } else if (document.getElementById('averageMood').textContent <= 4) {
+                    insights.push({
+                        title: 'Support Available',
+                        icon: 'fas fa-hands-helping',
+                        content: 'Your mood scores suggest you might benefit from additional support. Consider reaching out to a mental health professional or exploring our resources.'
+                    });
+                }
+                
+                if (document.getElementById('currentStreak').textContent > 7) {
+                    insights.push({
+                        title: 'Consistent Tracking',
+                        icon: 'fas fa-fire',
+                        content: `Excellent! You've been tracking your mood for ${document.getElementById('currentStreak').textContent} days. Consistency is key to understanding your patterns.`
+                    });
+                }
+            }
+            
+            insightsGrid.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <h4><i class="${insight.icon}"></i> ${insight.title}</h4>
+                    <p>${insight.content}</p>
+                </div>
+            `).join('');
+        }
+        
+        // Initialize
+        loadAnalytics();
+    </script>
+</body>
+</html> 

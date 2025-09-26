@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracking - Mental Health Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/dashboard">
+                <i class="fas fa-brain"></i>
+                Mental Health Platform
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a href="/dashboard" class="nav-link text-white">Dashboard</a>
+                <a href="/mood" class="nav-link active text-white">Mood</a>
+                <a href="/journal" class="nav-link text-white">Journal</a>
+                <a href="/resources" class="nav-link text-white">Resources</a>
+                <a href="/analytics" class="nav-link text-white">Analytics</a>
+                <a href="/profile" class="nav-link text-white">Profile</a>
+                <a href="#" onclick="logout()" class="nav-link text-white">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container my-4">
+        <div class="text-center mb-4">
+            <h1 class="display-4"><i class="fas fa-smile"></i> Mood Tracking</h1>
+            <p class="lead">Log your daily mood and emotions to track your mental health journey</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">How are you feeling today?</h2>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-star"></i> Mood Score (1-10)</label>
+                    <input type="range" id="moodScore" class="form-range" min="1" max="10" value="5">
+                    <div class="text-center my-3 p-3 bg-light rounded">
+                        <div class="display-1" id="moodEmoji">😐</div>
+                        <div class="h3" id="moodScoreDisplay">5</div>
+                        <div class="text-muted" id="moodLabelDisplay">Neutral</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-tag"></i> Quick Mood Selection</label>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Happy', 8, '😊')">
+                                <div class="fs-1">😊</div>
+                                <div>Happy</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Calm', 7, '😌')">
+                                <div class="fs-1">😌</div>
+                                <div>Calm</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Neutral', 5, '😐')">
+                                <div class="fs-1">😐</div>
+                                <div>Neutral</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Sad', 3, '😢')">
+                                <div class="fs-1">😢</div>
+                                <div>Sad</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Anxious', 2, '😰')">
+                                <div class="fs-1">😰</div>
+                                <div>Anxious</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="card text-center p-2 mood-option" onclick="selectMood('Angry', 2, '😠')">
+                                <div class="fs-1">😠</div>
+                                <div>Angry</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-sticky-note"></i> Notes (optional)</label>
+                    <textarea class="form-control" id="moodNotes" rows="4" placeholder="What's on your mind? How was your day?"></textarea>
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="logMood()" id="moodBtn">
+                    <i class="fas fa-plus"></i> Log My Mood
+                </button>
+
+                <div id="response" class="alert mt-3" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4"><i class="fas fa-history"></i> Recent Mood Entries</h2>
+                <div class="row g-3" id="moodHistory">
+                    <div class="col-12 text-center">
+                        <i class="fas fa-spinner fa-spin"></i> Loading your mood history...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        
+        // Check if user is logged in
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+        
+        const moodScore = document.getElementById('moodScore');
+        const moodEmoji = document.getElementById('moodEmoji');
+        const moodScoreDisplay = document.getElementById('moodScoreDisplay');
+        const moodLabelDisplay = document.getElementById('moodLabelDisplay');
+        
+        // Mood mappings
+        const moodMappings = {
+            1: { emoji: '😭', label: 'Very Sad' },
+            2: { emoji: '😢', label: 'Sad' },
+            3: { emoji: '😔', label: 'Down' },
+            4: { emoji: '😕', label: 'Not Great' },
+            5: { emoji: '😐', label: 'Neutral' },
+            6: { emoji: '🙂', label: 'Okay' },
+            7: { emoji: '😌', label: 'Calm' },
+            8: { emoji: '😊', label: 'Happy' },
+            9: { emoji: '😄', label: 'Very Happy' },
+            10: { emoji: '🤩', label: 'Excellent' }
+        };
+        
+        // Update mood display
+        function updateMoodDisplay() {
+            const score = parseInt(moodScore.value);
+            const mood = moodMappings[score];
+            moodEmoji.textContent = mood.emoji;
+            moodScoreDisplay.textContent = score;
+            moodLabelDisplay.textContent = mood.label;
+        }
+        
+        // Select mood from quick selector
+        function selectMood(label, score, emoji) {
+            moodScore.value = score;
+            updateMoodDisplay();
+            
+            // Update quick selector
+            document.querySelectorAll('.mood-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+        
+        // Show response
+        function showResponse(message, isSuccess = true) {
+            const response = document.getElementById('response');
+            response.textContent = message;
+            response.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'}`;
+            response.style.display = 'block';
+        }
+
+        // Show loading
+        function showLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging Mood...';
+            button.disabled = true;
+            return originalText;
+        }
+        
+        // Hide loading
+        function hideLoading(buttonId, originalText) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        
+        // Log mood
+        async function logMood() {
+            const originalText = showLoading('moodBtn');
+            
+            try {
+                const response = await fetch('/api/mood', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({
+                        mood_score: parseInt(moodScore.value),
+                        mood_label: moodLabelDisplay.textContent,
+                        notes: document.getElementById('moodNotes').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse('Mood logged successfully!', true);
+                    // Clear form
+                    moodScore.value = 5;
+                    updateMoodDisplay();
+                    document.getElementById('moodNotes').value = '';
+                    document.querySelectorAll('.mood-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    // Reload mood history
+                    loadMoodHistory();
+                } else {
+                    showResponse(data.message || 'Failed to log mood', false);
+                }
+            } catch (error) {
+                showResponse('Error: ' + error.message, false);
+            } finally {
+                hideLoading('moodBtn', originalText);
+            }
+        }
+        
+        // Load mood history
+        async function loadMoodHistory() {
+            try {
+                const response = await fetch('/api/mood?per_page=100', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                
+                if (response.ok) {
+                    const moods = await response.json();
+                    console.log('Mood history:', moods); // Debug log
+                    const historyContainer = document.getElementById('moodHistory');
+                    
+                    if (!Array.isArray(moods) || moods.length === 0) {
+                        historyContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No mood entries yet. Start tracking your mood!</div>';
+                        return;
+                    }
+                    
+                    historyContainer.innerHTML = moods.slice(0, 10).map(mood => `
+                        <div class="mood-entry">
+                            <div class="mood-entry-emoji">${moodMappings[mood.mood_score]?.emoji || '😐'}</div>
+                            <div class="mood-entry-details">
+                                <div class="mood-entry-date">${new Date(mood.created_at).toLocaleDateString()}</div>
+                                <div class="mood-entry-score">Score: ${mood.mood_score}/10 - ${mood.mood_label}</div>
+                                ${mood.notes ? `<div class="mood-entry-notes">${mood.notes}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    console.error('Failed to load mood history:', response.status);
+                    document.getElementById('moodHistory').innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Failed to load mood history</div>';
+                }
+            } catch (error) {
+                console.error('Error loading mood history:', error);
+                document.getElementById('moodHistory').innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Error loading mood history</div>';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+
+        // Initialize
+        moodScore.addEventListener('input', updateMoodDisplay);
+        updateMoodDisplay();
+        loadMoodHistory();
+    </script>
+</body>
+</html> 

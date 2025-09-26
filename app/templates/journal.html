@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal - Mental Health Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="/dashboard">
+                <i class="fas fa-brain"></i>
+                Mental Health Platform
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a href="/dashboard" class="nav-link text-white">Dashboard</a>
+                <a href="/mood" class="nav-link text-white">Mood</a>
+                <a href="/journal" class="nav-link active text-white">Journal</a>
+                <a href="/resources" class="nav-link text-white">Resources</a>
+                <a href="/analytics" class="nav-link text-white">Analytics</a>
+                <a href="/profile" class="nav-link text-white">Profile</a>
+                <a href="#" onclick="logout()" class="nav-link text-white">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="text-center mb-4">
+            <h1 class="display-4"><i class="fas fa-book"></i> Journal</h1>
+            <p class="lead">Write your thoughts and feelings in a private, secure journal</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Write a New Entry</h2>
+
+                <div class="mb-3">
+                    <label for="journalTitle" class="form-label"><i class="fas fa-heading"></i> Title (optional)</label>
+                    <input type="text" class="form-control" id="journalTitle" placeholder="Give your entry a title...">
+                </div>
+
+                <div class="mb-3">
+                    <label for="journalContent" class="form-label"><i class="fas fa-edit"></i> Your thoughts</label>
+                    <textarea class="form-control" id="journalContent" rows="8" placeholder="Write about your day, feelings, or anything on your mind..."></textarea>
+                </div>
+
+                <button class="btn btn-primary w-100" onclick="createJournal()" id="journalBtn">
+                    <i class="fas fa-save"></i> Save Entry
+                </button>
+
+                <div id="response" class="alert mt-3" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4"><i class="fas fa-history"></i> Your Journal Entries</h2>
+                <div class="row g-3" id="entriesList">
+                    <div class="col-12 text-center">
+                        <i class="fas fa-spinner fa-spin"></i> Loading your journal entries...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        
+        // Check if user is logged in
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+        
+        // Show response
+        function showResponse(message, isSuccess = true) {
+            const response = document.getElementById('response');
+            response.textContent = message;
+            response.className = `alert ${isSuccess ? 'alert-success' : 'alert-danger'}`;
+            response.style.display = 'block';
+        }
+
+        // Show loading
+        function showLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving Entry...';
+            button.disabled = true;
+            return originalText;
+        }
+        
+        // Hide loading
+        function hideLoading(buttonId, originalText) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        
+        // Create journal entry
+        async function createJournal() {
+            const title = document.getElementById('journalTitle').value.trim();
+            const content = document.getElementById('journalContent').value.trim();
+            
+            if (!content) {
+                showResponse('Please write something in your journal entry', false);
+                return;
+            }
+            
+            const originalText = showLoading('journalBtn');
+            
+            try {
+                const response = await fetch('/api/journal', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({
+                        title: title || null,
+                        content: content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResponse('Journal entry saved successfully!', true);
+                    // Clear form
+                    document.getElementById('journalTitle').value = '';
+                    document.getElementById('journalContent').value = '';
+                    // Reload entries
+                    loadJournalEntries();
+                } else {
+                    showResponse(data.message || 'Failed to save entry', false);
+                }
+            } catch (error) {
+                showResponse('Error: ' + error.message, false);
+            } finally {
+                hideLoading('journalBtn', originalText);
+            }
+        }
+        
+        // Load journal entries
+        async function loadJournalEntries() {
+            try {
+                const response = await fetch('/api/journal?per_page=100', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                
+                if (response.ok) {
+                    const entries = await response.json();
+                    const entriesContainer = document.getElementById('entriesList');
+                    
+                    if (!Array.isArray(entries) || entries.length === 0) {
+                        entriesContainer.innerHTML = '<div class="col-12 text-center text-muted">No journal entries yet. Start writing your first entry!</div>';
+                        return;
+                    }
+
+                    entriesContainer.innerHTML = entries.map(entry => `
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title">${entry.title || 'Untitled Entry'}</h5>
+                                        <small class="text-muted">${new Date(entry.created_at).toLocaleDateString()}</small>
+                                    </div>
+                                    <p class="card-text">${entry.content}</p>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteEntry(${entry.id})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('entriesList').innerHTML = '<div class="col-12 text-center text-muted">Failed to load journal entries</div>';
+                }
+            } catch (error) {
+                document.getElementById('entriesList').innerHTML = '<div class="col-12 text-center text-muted">Error loading journal entries</div>';
+            }
+        }
+        
+        // Delete journal entry
+        async function deleteEntry(entryId) {
+            if (!confirm('Are you sure you want to delete this entry?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/journal/${entryId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                
+                if (response.ok) {
+                    loadJournalEntries();
+                } else {
+                    alert('Failed to delete entry');
+                }
+            } catch (error) {
+                alert('Error deleting entry');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+
+        // Initialize
+        loadJournalEntries();
+    </script>
+</body>
+</html>
