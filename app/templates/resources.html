@@ -800,6 +800,9 @@
                             <i class="fas fa-stop"></i> Stop
                         </button>
                     </div>
+
+                   <audio id="breathingSound" src="{{ url_for('static', filename='inhale-exhale.mp3') }}" preload="auto"></audio>
+
                     
                     <div class="progress-bar">
                         <div class="progress-fill" id="meditationProgress"></div>
@@ -1193,6 +1196,7 @@
                             <button class="control-btn secondary" id="stopPracticeBtn" onclick="stopBreathingPractice()" disabled>
                                 <i class="fas fa-stop"></i> Stop
                             </button>
+                            <audio id="breathingSound" src="{{ url_for('static', filename='inhale-exhale.mp3') }}" preload="auto"></audio>
                         </div>
                     </div>
                 </div>
@@ -1316,17 +1320,20 @@
             const startBtn = document.getElementById('startMeditationBtn');
             const pauseBtn = document.getElementById('pauseMeditationBtn');
             const stopBtn = document.getElementById('stopMeditationBtn');
-            
+
             startBtn.disabled = true;
             pauseBtn.disabled = false;
             stopBtn.disabled = false;
-            
+
             meditationStartTime = Date.now();
             breathCount = 0;
-            
+
+            // Play breathing audio
+            document.getElementById('breathingSound').play();
+
             // Start breathing cycle
             startBreathingCycle();
-            
+
             // Start timer
             meditationTimer = setInterval(updateMeditationTime, 1000);
         }
@@ -1342,6 +1349,10 @@
             clearInterval(meditationTimer);
             
             document.getElementById('breathingText').textContent = 'Paused';
+
+             
+
+            
         }
         
         function stopMeditation() {
@@ -1375,14 +1386,14 @@
         
         function startBreathingCycle() {
             let cycleTime = 0;
-            const totalCycleTime = 8000; // 8 seconds per breath cycle (4s inhale, 4s exhale)
+            const totalCycleTime = 4000; // 8 seconds per breath cycle (4s inhale, 4s exhale)
             
             meditationInterval = setInterval(() => {
                 cycleTime += 100;
                 const progress = (cycleTime / totalCycleTime) * 100;
                 document.getElementById('meditationProgress').style.width = progress + '%';
                 
-                if (cycleTime <= 4000) {
+                if (cycleTime <= 2000) {
                     // Inhale phase
                     if (isBreathingIn) {
                         document.getElementById('breathingText').textContent = 'Breathe In...';
@@ -2125,6 +2136,8 @@
                     }
                 }, step.duration * 1000);
             }
+            document.getElementById('breathingSound').play();
+
             
             runBreathingCycle();
         }

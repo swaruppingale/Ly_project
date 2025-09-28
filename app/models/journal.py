@@ -2,13 +2,14 @@ from app import db
 from datetime import datetime
 
 class JournalEntry(db.Model):
-    """Journal entry model for personal diary entries"""
+    
     __tablename__ = 'journal_entries'
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(200), nullable=True)
     content = db.Column(db.Text, nullable=False)
+    sentiment = db.Column(db.String(20), nullable=True)  # 'positive', 'neutral', 'negative'
     mood_before = db.Column(db.Integer, nullable=True)  # 1-10 scale
     mood_after = db.Column(db.Integer, nullable=True)  # 1-10 scale
     tags = db.Column(db.Text, nullable=True)  # JSON string of tags
@@ -23,12 +24,13 @@ class JournalEntry(db.Model):
             setattr(self, key, value)
     
     def to_dict(self):
-        """Convert journal entry to dictionary"""
+
         return {
             'id': self.id,
             'user_id': self.user_id,
             'title': self.title,
             'content': self.content,
+            'sentiment': self.sentiment,
             'mood_before': self.mood_before,
             'mood_after': self.mood_after,
             'tags': self.tags,

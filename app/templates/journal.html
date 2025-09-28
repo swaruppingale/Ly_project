@@ -159,13 +159,21 @@
                         return;
                     }
 
-                    entriesContainer.innerHTML = entries.map(entry => `
+                    entriesContainer.innerHTML = entries.map(entry => {
+                        const sentimentClass = entry.sentiment === 'positive' ? 'bg-success' :
+                                              entry.sentiment === 'negative' ? 'bg-danger' : 'bg-secondary';
+                        const sentimentIcon = entry.sentiment === 'positive' ? 'smile' :
+                                             entry.sentiment === 'negative' ? 'frown' : 'meh';
+                        return `
                         <div class="col-md-6">
                             <div class="card h-100">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h5 class="card-title">${entry.title || 'Untitled Entry'}</h5>
-                                        <small class="text-muted">${new Date(entry.created_at).toLocaleDateString()}</small>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge ${sentimentClass}"><i class="fas fa-${sentimentIcon}"></i> ${entry.sentiment}</span>
+                                            <small class="text-muted">${new Date(entry.created_at).toLocaleDateString()}</small>
+                                        </div>
                                     </div>
                                     <p class="card-text">${entry.content}</p>
                                     <button class="btn btn-outline-danger btn-sm" onclick="deleteEntry(${entry.id})">
@@ -174,7 +182,8 @@
                                 </div>
                             </div>
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 } else {
                     document.getElementById('entriesList').innerHTML = '<div class="col-12 text-center text-muted">Failed to load journal entries</div>';
                 }

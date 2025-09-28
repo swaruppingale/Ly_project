@@ -48,6 +48,11 @@ def profile():
     """Profile page"""
     return render_template('profile.html')
 
+@app.route('/quiz')
+def quiz():
+    """Quiz page"""
+    return render_template('quiz.html')
+
 @app.route('/api')
 def api_info():
     """API information endpoint"""

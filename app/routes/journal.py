@@ -2,7 +2,26 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.journal import JournalEntry
+from textblob import TextBlob
 import json
+
+def get_sentiment(text):
+    """Analyze sentiment of journal entry text"""
+    try:
+        if not text or not text.strip():
+            return 'neutral'
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+
+        if polarity > 0.05:
+            return 'positive'
+        elif polarity < -0.05:
+            return 'negative'
+        else:
+            return 'neutral'
+    except Exception as e:
+        print(f"Error analyzing sentiment: {e}")
+        return 'neutral'
 
 journal_bp = Blueprint('journal', __name__)
 
@@ -28,7 +47,10 @@ def create_journal_entry():
             tags=json.dumps(data.get('tags', [])) if data.get('tags') else None,
             is_private=data.get('is_private', True)
         )
-        
+
+        # Analyze sentiment
+        journal_entry.sentiment = get_sentiment(data['content'])
+
         db.session.add(journal_entry)
         db.session.commit()
         
@@ -127,24 +149,31 @@ def update_journal_entry(entry_id):
             return jsonify({'error': 'Journal entry not found'}), 404
         
         # Update fields
+        content_changed = False
         if 'content' in data:
+            if journal_entry.content != data['content']:
+                content_changed = True
             journal_entry.content = data['content']
-        
+
         if 'title' in data:
             journal_entry.title = data['title']
-        
+
         if 'mood_before' in data:
             journal_entry.mood_before = data['mood_before']
-        
+
         if 'mood_after' in data:
             journal_entry.mood_after = data['mood_after']
-        
+
         if 'tags' in data:
             journal_entry.tags = json.dumps(data['tags']) if data['tags'] else None
-        
+
         if 'is_private' in data:
             journal_entry.is_private = data['is_private']
-        
+
+        # Re-analyze sentiment if content changed
+        if content_changed:
+            journal_entry.sentiment = get_sentiment(journal_entry.content)
+
         db.session.commit()
         
         return jsonify({
